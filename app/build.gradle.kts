@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.lifecycle.runtime.compose)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
 
     testImplementation(libs.junit)
