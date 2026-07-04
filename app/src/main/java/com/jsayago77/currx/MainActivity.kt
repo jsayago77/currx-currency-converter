@@ -1,5 +1,6 @@
 package com.jsayago77.currx
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -37,14 +38,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.jsayago77.currx.data.di.NetworkModule
+import com.jsayago77.currx.data.repository.ExchangeRateRepository
+import com.jsayago77.currx.ui.main.MainViewModel
 import com.jsayago77.currx.ui.theme.CurrXTheme
 
 class MainActivity : ComponentActivity() {
+    @SuppressLint("ViewModelConstructorInComposable")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             CurrXTheme {
+                val viewModel = MainViewModel(ExchangeRateRepository(NetworkModule.api))
+                val dollar = viewModel.swapCurrencies()
+                println("HOLAAAAA")
+                println(dollar)
                 Scaffold(
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
