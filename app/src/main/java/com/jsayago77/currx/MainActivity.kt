@@ -28,6 +28,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,7 +39,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import com.jsayago77.currx.data.di.NetworkModule
+import com.jsayago77.currx.data.remote.api.ExchangeRateApi
 import com.jsayago77.currx.data.repository.ExchangeRateRepository
 import com.jsayago77.currx.ui.main.MainViewModel
 import com.jsayago77.currx.ui.theme.CurrXTheme
@@ -48,16 +51,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val mainViewModel = MainViewModel(ExchangeRateRepository(NetworkModule.api))
+
         setContent {
             CurrXTheme {
-                val viewModel = MainViewModel(ExchangeRateRepository(NetworkModule.api))
-                val dollar = viewModel.swapCurrencies()
-                println("HOLAAAAA")
-                println(dollar)
                 Scaffold(
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
                     MainPage(
+                        viewModel = mainViewModel,
                         modifier = Modifier
                             .padding(innerPadding)
                             .fillMaxSize()
@@ -69,11 +72,12 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainPage(modifier: Modifier = Modifier) {
-    var amount by remember { mutableStateOf("1.00") }
-    var fromCurrency by remember { mutableStateOf("USD") }
-    var toCurrency by remember { mutableStateOf("EUR") }
-    val exchangeRate = 0.92 // Dummy exchange rate
+fun MainPage(
+    viewModel: MainViewModel,
+    modifier: Modifier = Modifier
+) {
+
+    val uiState by viewModel.uiState.collectAsState()
 
     Column(
         modifier = modifier
@@ -90,7 +94,7 @@ fun MainPage(modifier: Modifier = Modifier) {
         )
 
         Text(
-            text = "Fast & Simple Currency Exchange",
+            text = "Fast & Simple Currency Converter",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.outline
         )
@@ -112,18 +116,14 @@ fun MainPage(modifier: Modifier = Modifier) {
             ) {
                 CurrencySection(
                     label = "From",
-                    amount = amount,
-                    currency = fromCurrency,
-                    onAmountChange = { amount = it },
+                    amount = uiState.amount,
+                    currency = uiState.fromCurrency,
+                    onAmountChange = { viewModel.updateAmount(it); println(uiState.convertedAmount) },
                     onCurrencyClick = { /* TODO: Currency Selection */ }
                 )
 
                 IconButton(
-                    onClick = {
-                        val temp = fromCurrency
-                        fromCurrency = toCurrency
-                        toCurrency = temp
-                    },
+                    onClick = { viewModel.swapCurrencies() },
                     modifier = Modifier.size(48.dp)
                 ) {
                     Icon(
@@ -133,11 +133,10 @@ fun MainPage(modifier: Modifier = Modifier) {
                     )
                 }
 
-                val convertedAmount = (amount.toDoubleOrNull() ?: 0.0) * exchangeRate
                 CurrencySection(
                     label = "To",
-                    amount = String.format("%.2f", convertedAmount),
-                    currency = toCurrency,
+                    amount = uiState.convertedAmount,
+                    currency = uiState.toCurrency,
                     onAmountChange = {},
                     onCurrencyClick = { /* TODO: Currency Selection */ },
                     readOnly = true
@@ -153,7 +152,7 @@ fun MainPage(modifier: Modifier = Modifier) {
             color = MaterialTheme.colorScheme.outline
         )
         Text(
-            text = "1 $fromCurrency = $exchangeRate $toCurrency",
+            text = "1 ${uiState.fromCurrency} = ${uiState.exchangeRate} ${uiState.toCurrency}",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.secondary
@@ -215,11 +214,14 @@ fun CurrencySection(
 @Preview(showBackground = true, device = "spec:width=411dp,height=891dp", showSystemUi = true)
 @Composable
 fun GreetingPreview() {
+    val mainViewModel = MainViewModel(ExchangeRateRepository(NetworkModule.api))
+
     CurrXTheme {
         Scaffold(
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
             MainPage(
+                viewModel = mainViewModel,
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize()

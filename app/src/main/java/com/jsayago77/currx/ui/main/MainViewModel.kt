@@ -1,7 +1,9 @@
 package com.jsayago77.currx.ui.main
 
+import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jsayago77.currx.data.remote.dto.RateResponse
 import com.jsayago77.currx.data.repository.ExchangeRateRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,9 +20,11 @@ class MainViewModel(
     fun swapCurrencies() {
         _uiState.value = _uiState.value.copy(
             fromCurrency = _uiState.value.toCurrency,
-            toCurrency = _uiState.value.fromCurrency
+            toCurrency = _uiState.value.fromCurrency,
+            amount = _uiState.value.convertedAmount
         )
         loadRate()
+        convert()
     }
 
     fun updateAmount(amount: String) {
@@ -31,10 +35,10 @@ class MainViewModel(
     private fun loadRate() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            repository.getRate(_uiState.value.fromCurrency, _uiState.value.toCurrency)
+            repository.getDollarRate("ve")
                 .onSuccess { rate ->
                     _uiState.value = _uiState.value.copy(
-                        exchangeRate = rate,
+                        exchangeRate = rate as Double,
                         isLoading = false,
                         error = null
                     )
@@ -58,9 +62,9 @@ class MainViewModel(
 
 data class MainUiState(
     val amount: String = "1.00",
-    val fromCurrency: String = "USD",
-    val toCurrency: String = "EUR",
-    val exchangeRate: Double = 0.0,
+    val fromCurrency: String = "VES",
+    val toCurrency: String = "USD",
+    val exchangeRate: Double = 1.00,
     val convertedAmount: String = "",
     val isLoading: Boolean = false,
     val error: String? = null
