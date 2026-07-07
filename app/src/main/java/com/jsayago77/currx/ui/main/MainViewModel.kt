@@ -1,9 +1,8 @@
 package com.jsayago77.currx.ui.main
 
-import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jsayago77.currx.data.remote.dto.RateResponse
+import com.jsayago77.currx.data.remote.dto.CurrenciesResponse
 import com.jsayago77.currx.data.repository.ExchangeRateRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,8 +19,10 @@ class MainViewModel(
     fun getCurrencies() {
         viewModelScope.launch {
             repository.getCurrencies()
-                .onSuccess {
-
+                .onSuccess { currencies ->
+                    _uiState.value = _uiState.value.copy(
+                        currencies = currencies
+                    )
                 }
                 .onFailure {  e ->
                     _uiState.value = _uiState.value.copy(
@@ -47,6 +48,16 @@ class MainViewModel(
         convert()
     }
 
+    fun updateFromCurrency(currency: String) {
+        _uiState.value = _uiState.value.copy(fromCurrency = currency)
+        loadRate()
+    }
+
+    fun updateToCurrency(currency: String) {
+        _uiState.value = _uiState.value.copy(toCurrency = currency)
+        loadRate()
+    }
+
     private fun loadRate() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
@@ -57,6 +68,7 @@ class MainViewModel(
                         isLoading = false,
                         error = null
                     )
+                    convert()
                 }
                 .onFailure { e ->
                     _uiState.value = _uiState.value.copy(
@@ -82,5 +94,6 @@ data class MainUiState(
     val exchangeRate: Double = 1.00,
     val convertedAmount: String = "",
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val currencies: List<CurrenciesResponse> = emptyList()
 )

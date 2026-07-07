@@ -13,7 +13,6 @@ class ExchangeRateRepository(
     suspend fun getCurrencies(): Result<List<CurrenciesResponse>> {
         return try {
             val response = api.getCurrencies()
-            val currencies = response.map { it.isoCode }
             Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)

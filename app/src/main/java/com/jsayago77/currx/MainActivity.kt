@@ -5,15 +5,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
@@ -21,12 +25,16 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,9 +48,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import com.jsayago77.currx.data.di.NetworkModule
-import com.jsayago77.currx.data.remote.api.ExchangeRateApi
 import com.jsayago77.currx.data.repository.ExchangeRateRepository
 import com.jsayago77.currx.ui.main.MainViewModel
 import com.jsayago77.currx.ui.theme.CurrXTheme
@@ -72,6 +78,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainPage(
     viewModel: MainViewModel,
@@ -79,9 +86,47 @@ fun MainPage(
 ) {
 
     val uiState by viewModel.uiState.collectAsState()
+    var showSheet by remember { mutableStateOf(false) }
+    var selectingForFrom by remember { mutableStateOf(true) }
+    val sheetState = rememberModalBottomSheetState()
 
     LaunchedEffect(Unit) {
         viewModel.getCurrencies()
+    }
+
+    if (showSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showSheet = false },
+            sheetState = sheetState
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.6f)
+                    .padding(bottom = 24.dp)
+            ) {
+                items(uiState.currencies) { currency ->
+                    ListItem(
+                        headlineContent = { Text(currency.name) },
+                        supportingContent = { Text(currency.isoCode) },
+                        leadingContent = {
+                            Text(
+                                text = currency.symbol,
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                        },
+                        modifier = Modifier.clickable {
+                            if (selectingForFrom) {
+                                viewModel.updateFromCurrency(currency.isoCode)
+                            } else {
+                                viewModel.updateToCurrency(currency.isoCode)
+                            }
+                            showSheet = false
+                        }
+                    )
+                }
+            }
+        }
     }
 
     Column(
@@ -123,8 +168,11 @@ fun MainPage(
                     label = "From",
                     amount = uiState.amount,
                     currency = uiState.fromCurrency,
-                    onAmountChange = { viewModel.updateAmount(it); println(uiState.convertedAmount) },
-                    onCurrencyClick = { /* TODO: Currency Selection */ }
+                    onAmountChange = { viewModel.updateAmount(it) },
+                    onCurrencyClick = {
+                        selectingForFrom = true
+                        showSheet = true
+                    }
                 )
 
                 IconButton(
@@ -143,7 +191,10 @@ fun MainPage(
                     amount = uiState.convertedAmount,
                     currency = uiState.toCurrency,
                     onAmountChange = {},
-                    onCurrencyClick = { /* TODO: Currency Selection */ },
+                    onCurrencyClick = {
+                        selectingForFrom = false
+                        showSheet = true
+                    },
                     readOnly = true
                 )
             }
