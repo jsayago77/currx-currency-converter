@@ -8,12 +8,12 @@ import com.jsayago77.currx.utils.countryDollar
 class ExchangeRateRepository(
     private val api: ExchangeRateApi
 ) {
-    suspend fun getDollarRate(country: String): Result<List<DollarRate>> {
+    suspend fun getDollarRate(country: String): Result<Any> {
         return try {
             val response = if(countryDollar.contains(country))
-                api.getLatestDollarRates(country)
+                api.getLatestDollarRates(country)[0].promedio
             else
-                api.getRates(country, "USD")
+                api.getRates(country, "USD").rate
             Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)

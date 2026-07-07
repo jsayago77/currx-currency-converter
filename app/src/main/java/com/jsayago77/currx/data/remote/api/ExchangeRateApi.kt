@@ -17,5 +17,5 @@ interface ExchangeRateApi {
     suspend fun getRates(
         @Path("from") from: String,
         @Path("to") to: String
-    ): List<DollarRate>
+    ): RateResponse
 }

@@ -4,7 +4,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class RateResponse(
+    val date: String,
     val base: String,
-    val rates: List<DollarRate>,
-    val date: String
+    val quote: String,
+    val rate: Double
+
 )
