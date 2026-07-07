@@ -17,6 +17,21 @@ class MainViewModel(
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
+    fun getCurrencies() {
+        viewModelScope.launch {
+            repository.getCurrencies()
+                .onSuccess {
+
+                }
+                .onFailure {  e ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = e.message
+                    )
+                }
+        }
+    }
+
     fun swapCurrencies() {
         _uiState.value = _uiState.value.copy(
             fromCurrency = _uiState.value.toCurrency,

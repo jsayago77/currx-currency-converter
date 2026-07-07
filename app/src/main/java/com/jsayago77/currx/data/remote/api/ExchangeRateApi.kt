@@ -1,5 +1,6 @@
 package com.jsayago77.currx.data.remote.api
 
+import com.jsayago77.currx.data.remote.dto.CurrenciesResponse
 import com.jsayago77.currx.data.remote.dto.DollarRate
 import com.jsayago77.currx.data.remote.dto.RateResponse
 import retrofit2.http.GET
@@ -18,4 +19,7 @@ interface ExchangeRateApi {
         @Path("from") from: String,
         @Path("to") to: String
     ): RateResponse
+
+    @GET("/v2/currencies")
+    suspend fun getCurrencies(): List<CurrenciesResponse>
 }
