@@ -1,13 +1,14 @@
 package com.jsayago77.currx.data.remote.dto
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class CurrenciesResponse(
-    val isoCode: String,
-    val isoNumeric: String,
+    @SerialName("iso_code") val isoCode: String,
+    @SerialName("iso_numeric") val isoNumeric: String,
     val name: String,
     val symbol: String,
-    val startDate: String,
-    val endDate: String
+    @SerialName("start_date") val startDate: String,
+    @SerialName("end_date") val endDate: String
 )

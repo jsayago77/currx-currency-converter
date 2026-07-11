@@ -2,9 +2,7 @@ package com.jsayago77.currx.data.di
 
 import com.jsayago77.currx.data.remote.api.ExchangeRateApi
 import com.jsayago77.currx.data.remote.interceptor.CountryInterceptor
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonNamingStrategy
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -27,9 +25,7 @@ object NetworkModule {
         .addInterceptor(countryInterceptor)
         .build()
 
-    val networkJson = Json {
-        namingStrategy = JsonNamingStrategy.Builtins.SnakeCase
-    }
+    val networkJson = Json
 
     val api: ExchangeRateApi by lazy {
         Retrofit.Builder()
