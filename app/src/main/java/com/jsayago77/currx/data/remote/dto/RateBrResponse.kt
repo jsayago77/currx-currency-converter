@@ -3,9 +3,9 @@ package com.jsayago77.currx.data.remote.dto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-//Quote for Brazil dolarapi.com subodmain
+// Rate for Brazil dolarapi.com subodmain
 @Serializable
-data class QuoteBRResponse(
+data class RateBrResponse(
     @SerialName("moeda") val moneda: String,
     @SerialName("nome") val nombre: String,
     @SerialName("compra") val compra: Double? = null,

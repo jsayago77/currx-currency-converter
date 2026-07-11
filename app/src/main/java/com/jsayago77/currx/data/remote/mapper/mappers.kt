@@ -1,17 +1,17 @@
 package com.jsayago77.currx.data.remote.mapper
 
 import com.jsayago77.currx.data.remote.dto.DollarRateResponse
-import com.jsayago77.currx.data.remote.dto.QuoteBRResponse
-import com.jsayago77.currx.data.remote.dto.QuoteResponse
+import com.jsayago77.currx.data.remote.dto.RateBrResponse
+import com.jsayago77.currx.data.remote.dto.LatamRateResponse
 import com.jsayago77.currx.data.remote.dto.RateOption
 import com.jsayago77.currx.data.remote.dto.RateResponse
 
-fun QuoteResponse.toRateOption(): RateOption {
+fun LatamRateResponse.toRateOption(): RateOption {
     val rate = promedio ?: compra ?: venta ?: 0.0
     return RateOption(rate, nombre, "DolarApi")
 }
 
-fun QuoteBRResponse.toRateOption(): RateOption {
+fun RateBrResponse.toRateOption(): RateOption {
     val rate = compra ?: venta ?: 0.0
     return RateOption(rate, nombre, "DolarApi")
 }

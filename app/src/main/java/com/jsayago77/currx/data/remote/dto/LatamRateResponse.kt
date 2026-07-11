@@ -3,7 +3,7 @@ package com.jsayago77.currx.data.remote.dto
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class QuoteResponse(
+data class LatamRateResponse(
     val moneda: String,
     val nombre: String,
     val compra: Double? = null,

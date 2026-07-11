@@ -22,9 +22,9 @@ class ExchangeRateRepository(
     suspend fun getRate(from: String, to: String): Result<List<RateOption>> {
         return try {
             val resp = when {
-               from in countryLatam -> getLatamRates(from, to)
-               to in countryLatam -> invertLatamRates(to, from)
-               else -> listOf(getRateNormal(from, to))
+               from in countryLatam -> getLatamRates(from, to) + listOf(getNormalRate(from, to))
+               to in countryLatam -> invertLatamRates(to, from) + listOf(getNormalRate(from, to))
+               else -> listOf(getNormalRate(from, to))
             }
             Result.success(resp)
         } catch (e: Exception) {
@@ -35,19 +35,19 @@ class ExchangeRateRepository(
     private suspend fun getLatamRates(from: String, to: String): List<RateOption> {
         return when(from) {
             "BRL" -> {
-                api.getCotizacionesBR(from).filter { it.moneda == to }.map { it.toRateOption() }
+                api.getRatesBr(from).filter { it.moneda == to }.map { it.toRateOption() }
             }
-            "ARS, BOB" -> {
-                if(to == "USD") api.getLatestDollarRates(from).map { it.toRateOption() }
+            "ARS", "BOB" -> {
+                if(to == "USD") api.getLatamDollarRates(from).map { it.toRateOption() }
                 else listOf(api.getRates(from, to)).map { it.toRateOption() }
             }
             else -> {
-                api.getCotizaciones(from).filter { it.moneda == to }.map { it.toRateOption() }
+                api.getLatamRates(from).filter { it.moneda == to }.map { it.toRateOption() }
             }
         }
     }
 
-    private suspend fun getRateNormal(from: String, to: String): RateOption {
+    private suspend fun getNormalRate(from: String, to: String): RateOption {
             return api.getRates(from, to).toRateOption()
     }
 
