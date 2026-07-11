@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">CurrX</string>
+    <string name="disclaimer">Las tasas de cambio mostradas son de referencia informativa y pueden diferir de las tasas reales de transacción. Fuentes: Frankfurter API (BCE) y DolarAPI.com (licencia MIT). Esta aplicación no constituye asesoría financiera.</string>
 </resources>
