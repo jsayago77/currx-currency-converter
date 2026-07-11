@@ -1,3 +1,3 @@
 package com.jsayago77.currx.utils
 
-val countryDollar = mapOf("arg" to "", "cl" to "cl", "ve" to "ve", "uy" to "uy", "mx" to "mx", "bo" to "bo", "br" to "br", "co" to "co")
+val countryDollar = mapOf("ARS" to "", "CLP" to "cl", "VES" to "ve", "UYU" to "uy", "MXN" to "mx", "BOB" to "bo", "BRL" to "br", "COP" to "co")
