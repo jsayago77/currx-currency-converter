@@ -1,4 +1,4 @@
-package com.jsayago77.currx.data.remote.dto
+package com.jsayago77.currx.data.model
 
 import kotlinx.serialization.Serializable
 

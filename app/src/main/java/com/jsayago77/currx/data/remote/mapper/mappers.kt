@@ -3,7 +3,7 @@ package com.jsayago77.currx.data.remote.mapper
 import com.jsayago77.currx.data.remote.dto.DollarRateResponse
 import com.jsayago77.currx.data.remote.dto.RateBrResponse
 import com.jsayago77.currx.data.remote.dto.LatamRateResponse
-import com.jsayago77.currx.data.remote.dto.RateOption
+import com.jsayago77.currx.data.model.RateOption
 import com.jsayago77.currx.data.remote.dto.RateResponse
 
 fun LatamRateResponse.toRateOption(): RateOption {

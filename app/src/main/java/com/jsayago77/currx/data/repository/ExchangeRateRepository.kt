@@ -2,7 +2,7 @@ package com.jsayago77.currx.data.repository
 
 import com.jsayago77.currx.data.remote.api.ExchangeRateApi
 import com.jsayago77.currx.data.remote.dto.CurrenciesResponse
-import com.jsayago77.currx.data.remote.dto.RateOption
+import com.jsayago77.currx.data.model.RateOption
 import com.jsayago77.currx.data.remote.mapper.toRateOption
 import com.jsayago77.currx.utils.countryLatam
 
