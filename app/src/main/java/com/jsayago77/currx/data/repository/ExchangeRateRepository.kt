@@ -23,7 +23,7 @@ class ExchangeRateRepository(
         return try {
             val resp = when {
                from in countryLatam -> getLatamRates(from, to) + listOf(getNormalRate(from, to))
-               to in countryLatam -> invertLatamRates(from, to) + listOf(getNormalRate(from, to))
+               to in countryLatam -> invertLatamRates(to, from) + listOf(getNormalRate(to, from))
                else -> listOf(getNormalRate(from, to))
             }
             Result.success(resp)

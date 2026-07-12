@@ -17,6 +17,10 @@ class MainViewModel(
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
+    init {
+        loadRate()
+    }
+
     fun getCurrencies() {
         viewModelScope.launch {
             repository.getCurrencies()
@@ -37,11 +41,11 @@ class MainViewModel(
         _uiState.value = current.copy(
             fromCurrency = current.toCurrency,
             toCurrency = current.fromCurrency,
+            convertedAmount = current.amount,
             amount = current.convertedAmount,
             selectedRateIndex = 0
         )
         loadRate()
-        convert()
     }
 
     fun updateAmount(amount: String) {
@@ -110,7 +114,7 @@ class MainViewModel(
 
         _uiState.value = state.copy(
             exchangeRate = rate,
-            convertedAmount = String.format("%.4f", amount * rate)
+            convertedAmount = String.format("%.4f", amount / rate)
         )
     }
 }
