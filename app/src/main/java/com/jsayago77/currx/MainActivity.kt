@@ -220,7 +220,7 @@ fun MainPage(
         if (uiState.rateOptions.isNotEmpty()) {
             val selected = uiState.rateOptions[uiState.selectedRateIndex.coerceIn(0, uiState.rateOptions.lastIndex)]
             Text(
-                text = "1 ${uiState.toCurrency} = ${String.format("%.4f", selected.rate)} ${uiState.fromCurrency}",
+                text = "1 ${uiState.fromCurrency} = ${String.format("%.4f", 1 / selected.rate)} ${uiState.toCurrency}",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.secondary

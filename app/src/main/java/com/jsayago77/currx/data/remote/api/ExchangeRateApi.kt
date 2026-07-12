@@ -29,7 +29,7 @@ interface ExchangeRateApi {
         @Header("X-Country") country: String = ""
     ): List<DollarRateResponse>
 
-    @GET("/v2/rate/{from}/{to}")
+    @GET("/v2/rate/{to}/{from}")
     suspend fun getRates(
         @Path("from") from: String,
         @Path("to") to: String
