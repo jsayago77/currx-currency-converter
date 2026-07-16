@@ -106,31 +106,59 @@ fun MainPage(
             onDismissRequest = { showSheet = false },
             sheetState = sheetState
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.6f)
-                    .padding(bottom = 24.dp)
-            ) {
-                items(uiState.currencies) { currency ->
-                    ListItem(
-                        headlineContent = { Text(currency.name) },
-                        supportingContent = { Text(currency.isoCode) },
-                        leadingContent = {
-                            Text(
-                                text = currency.symbol,
-                                style = MaterialTheme.typography.titleLarge
-                            )
-                        },
-                        modifier = Modifier.clickable {
-                            if (selectingForFrom) {
-                                viewModel.updateFromCurrency(currency.isoCode)
-                            } else {
-                                viewModel.updateToCurrency(currency.isoCode)
+            var searchQuery by remember { mutableStateOf("") }
+
+            val filteredCurrencies = remember(uiState.currencies, searchQuery) {
+                if (searchQuery.isBlank()) {
+                    uiState.currencies
+                } else {
+                    val query = searchQuery.lowercase()
+                    uiState.currencies.filter { currency ->
+                        currency.name.lowercase().contains(query) ||
+                        currency.isoCode.lowercase().contains(query) ||
+                        currency.symbol.contains(query, ignoreCase = true)
+                    }
+                }
+            }
+
+            Column(modifier = Modifier.padding(bottom = 24.dp)) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 8.dp),
+                    placeholder = { Text("Search currency...") },
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.medium
+                )
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.6f)
+                        .padding(horizontal = 24.dp)
+                ) {
+                    items(filteredCurrencies) { currency ->
+                        ListItem(
+                            headlineContent = { Text(currency.name) },
+                            supportingContent = { Text(currency.isoCode) },
+                            leadingContent = {
+                                Text(
+                                    text = currency.symbol,
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                            },
+                            modifier = Modifier.clickable {
+                                if (selectingForFrom) {
+                                    viewModel.updateFromCurrency(currency.isoCode)
+                                } else {
+                                    viewModel.updateToCurrency(currency.isoCode)
+                                }
+                                showSheet = false
                             }
-                            showSheet = false
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
