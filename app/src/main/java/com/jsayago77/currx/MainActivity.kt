@@ -18,6 +18,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -130,7 +131,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun TechBackground() {
     val bgColor = MaterialTheme.colorScheme.background
-    val deepGreen = Color(0xFF00241B) // A very deep green for the gradient
+    val accentColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -138,7 +139,7 @@ fun TechBackground() {
                 Brush.verticalGradient(
                     colors = listOf(
                         bgColor,
-                        deepGreen,
+                        accentColor,
                         bgColor
                     )
                 )
@@ -254,7 +255,7 @@ fun MainPage(
             text = "CurrX",
             style = MaterialTheme.typography.displayMedium,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onBackground,
             letterSpacing = (-1).sp
         )
 
@@ -268,20 +269,20 @@ fun MainPage(
         Spacer(modifier = Modifier.height(40.dp))
 
         // Glassmorphism Premium Card
+        val glassColor = if (isSystemInDarkTheme()) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.03f)
+        val glassBorder = if (isSystemInDarkTheme()) Color.White.copy(alpha = 0.2f) else Color.Black.copy(alpha = 0.1f)
+        
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
                 .border(
                     width = 1.dp,
                     brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color.White.copy(alpha = 0.2f),
-                            Color.White.copy(alpha = 0.05f)
-                        )
+                        colors = listOf(glassBorder, glassBorder.copy(alpha = 0.5f))
                     ),
                     shape = RoundedCornerShape(28.dp)
                 ),
-            color = Color.White.copy(alpha = 0.05f),
+            color = glassColor,
             shape = RoundedCornerShape(28.dp),
         ) {
             Column(
@@ -357,7 +358,7 @@ fun MainPage(
                         Text(
                             text = "1 ${uiState.fromCurrency} = ${String.format("%.4f", 1 / selected.rate)} ${uiState.toCurrency}",
                             style = MaterialTheme.typography.titleLarge,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         
                         IconButton(onClick = {
@@ -466,6 +467,11 @@ fun CurrencySection(
     onCurrencyClick: () -> Unit,
     readOnly: Boolean = false
 ) {
+    val isDark = isSystemInDarkTheme()
+    val textFieldContentColor = MaterialTheme.colorScheme.onSurface
+    val textFieldContainerColor = if (isDark) Color.White.copy(alpha = 0.03f) else Color.Black.copy(alpha = 0.02f)
+    val textFieldBorderColor = if (isDark) Color.White.copy(alpha = 0.1f) else Color.Black.copy(alpha = 0.1f)
+
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = label,
@@ -482,16 +488,16 @@ fun CurrencySection(
                 value = amount,
                 onValueChange = onAmountChange,
                 modifier = Modifier.weight(1f),
-                textStyle = MaterialTheme.typography.headlineSmall.copy(color = Color.White),
+                textStyle = MaterialTheme.typography.headlineSmall.copy(color = textFieldContentColor),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 readOnly = readOnly,
                 singleLine = true,
                 shape = RoundedCornerShape(16.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-                    unfocusedBorderColor = Color.White.copy(alpha = 0.1f),
-                    unfocusedContainerColor = Color.White.copy(alpha = 0.03f),
-                    focusedContainerColor = Color.White.copy(alpha = 0.07f)
+                    unfocusedBorderColor = textFieldBorderColor,
+                    unfocusedContainerColor = textFieldContainerColor,
+                    focusedContainerColor = textFieldContainerColor.copy(alpha = 0.07f)
                 )
             )
 
