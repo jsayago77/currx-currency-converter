@@ -1,12 +1,25 @@
 package com.jsayago77.currx
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.with
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,10 +33,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -34,11 +49,15 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,12 +68,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.jsayago77.currx.R
 import com.jsayago77.currx.data.di.NetworkModule
 import com.jsayago77.currx.data.repository.ExchangeRateRepository
 import com.jsayago77.currx.ui.main.MainViewModel
@@ -73,22 +101,56 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
-                    MainPage(
-                        viewModel = mainViewModel,
-                        modifier = Modifier
-                            .padding(innerPadding)
-                            .fillMaxSize()
-                    )
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        TechBackground()
+                        MainPage(
+                            viewModel = mainViewModel,
+                            onShare = { text -> shareRate(text) },
+                            modifier = Modifier
+                                .padding(innerPadding)
+                                .fillMaxSize()
+                        )
+                    }
                 }
             }
         }
     }
+
+    private fun shareRate(text: String) {
+        val sendIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, text)
+            type = "text/plain"
+        }
+        val shareIntent = Intent.createChooser(sendIntent, null)
+        startActivity(shareIntent)
+    }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TechBackground() {
+    val bgColor = MaterialTheme.colorScheme.background
+    val deepGreen = Color(0xFF00241B) // A very deep green for the gradient
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        bgColor,
+                        deepGreen,
+                        bgColor
+                    )
+                )
+            )
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun MainPage(
     viewModel: MainViewModel,
+    onShare: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -128,9 +190,13 @@ fun MainPage(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp, vertical = 8.dp),
-                    placeholder = { Text("Search currency...") },
+                    placeholder = { Text("Search currency...", color = MaterialTheme.colorScheme.outline) },
                     singleLine = true,
-                    shape = MaterialTheme.shapes.medium
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                    )
                 )
 
                 LazyColumn(
@@ -141,14 +207,26 @@ fun MainPage(
                 ) {
                     items(filteredCurrencies) { currency ->
                         ListItem(
-                            headlineContent = { Text(currency.name) },
-                            supportingContent = { Text(currency.isoCode) },
+                            headlineContent = { Text(currency.name, fontWeight = FontWeight.SemiBold) },
+                            supportingContent = { Text(currency.isoCode, style = MaterialTheme.typography.labelSmall) },
                             leadingContent = {
-                                Text(
-                                    text = currency.symbol,
-                                    style = MaterialTheme.typography.titleLarge
-                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = currency.symbol,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
                             },
+                            colors = ListItemDefaults.colors(
+                                containerColor = Color.Transparent
+                            ),
                             modifier = Modifier.clickable {
                                 if (selectingForFrom) {
                                     viewModel.updateFromCurrency(currency.isoCode)
@@ -170,38 +248,51 @@ fun MainPage(
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         Text(
             text = "CurrX",
             style = MaterialTheme.typography.displayMedium,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = Color.White,
+            letterSpacing = (-1).sp
         )
 
         Text(
-            text = "Fast & Simple Currency Converter",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.outline
+            text = "Conversor de divisas premium",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.alpha(0.8f)
         )
 
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(40.dp))
 
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
-            shape = MaterialTheme.shapes.extraLarge
+        // Glassmorphism Premium Card
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    width = 1.dp,
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = 0.2f),
+                            Color.White.copy(alpha = 0.05f)
+                        )
+                    ),
+                    shape = RoundedCornerShape(28.dp)
+                ),
+            color = Color.White.copy(alpha = 0.05f),
+            shape = RoundedCornerShape(28.dp),
         ) {
             Column(
-                modifier = Modifier.padding(24.dp),
+                modifier = Modifier
+                    .padding(24.dp)
+                    .blur(if (false) 20.dp else 0.dp), // Blur is tricky in Surface, background is handled by TechBackground
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 CurrencySection(
-                    label = "From",
+                    label = "Origen",
                     amount = uiState.amount,
                     currency = uiState.fromCurrency,
                     onAmountChange = { viewModel.updateAmount(it) },
@@ -213,7 +304,12 @@ fun MainPage(
 
                 IconButton(
                     onClick = { viewModel.swapCurrencies() },
-                    modifier = Modifier.size(48.dp)
+                    modifier = Modifier
+                        .size(44.dp)
+                        .background(
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                            RoundedCornerShape(12.dp)
+                        )
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
@@ -223,7 +319,7 @@ fun MainPage(
                 }
 
                 CurrencySection(
-                    label = "To",
+                    label = "Destino",
                     amount = uiState.convertedAmount,
                     currency = uiState.toCurrency,
                     onAmountChange = {},
@@ -236,104 +332,131 @@ fun MainPage(
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(40.dp))
 
         // Exchange rate summary
-        Text(
-            text = "Exchange Rate",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.outline
-        )
-
-        if (uiState.rateOptions.isNotEmpty()) {
-            val selected = uiState.rateOptions[uiState.selectedRateIndex.coerceIn(0, uiState.rateOptions.lastIndex)]
-            Text(
-                text = "1 ${uiState.fromCurrency} = ${String.format("%.4f", 1 / selected.rate)} ${uiState.toCurrency}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.secondary
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Rate type selector — only show when multiple options
-            if (uiState.rateOptions.size > 1) {
-                Text(
-                    text = "Rate type",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.outline,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    uiState.rateOptions.forEachIndexed { index, option ->
-                        FilterChip(
-                            selected = index == uiState.selectedRateIndex,
-                            onClick = { viewModel.selectRateOption(index) },
-                            label = {
-                                Text(
-                                    text = option.type.replaceFirstChar { it.uppercase() },
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = if (index == uiState.selectedRateIndex)
-                                        FontWeight.Bold else FontWeight.Normal
-                                )
-                            },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+        AnimatedContent(
+            targetState = uiState.rateOptions.isNotEmpty(),
+            transitionSpec = {
+                fadeIn() with fadeOut()
+            }
+        ) { available ->
+            if (available) {
+                val selected = uiState.rateOptions[uiState.selectedRateIndex.coerceIn(0, uiState.rateOptions.lastIndex)]
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "Tipo de cambio",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                    )
+                    
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "1 ${uiState.fromCurrency} = ${String.format("%.4f", 1 / selected.rate)} ${uiState.toCurrency}",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = Color.White
+                        )
+                        
+                        IconButton(onClick = {
+                            val text = "CurrX Rate: 1 ${uiState.fromCurrency} = ${String.format("%.4f", 1 / selected.rate)} ${uiState.toCurrency} (Fuente: ${selected.source})"
+                            onShare(text)
+                        }) {
+                            Icon(
+                                Icons.Default.Share,
+                                contentDescription = "Share",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(18.dp)
                             )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // Rate type selector
+                    if (uiState.rateOptions.size > 1) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            uiState.rateOptions.forEachIndexed { index, option ->
+                                val isSelected = index == uiState.selectedRateIndex
+                                Box(
+                                    modifier = Modifier
+                                        .padding(horizontal = 4.dp)
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(
+                                            if (isSelected) MaterialTheme.colorScheme.primary 
+                                            else MaterialTheme.colorScheme.surface
+                                        )
+                                        .clickable { viewModel.selectRateOption(index) }
+                                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                                ) {
+                                    Text(
+                                        text = option.type.replaceFirstChar { it.uppercase() },
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = if (isSelected) MaterialTheme.colorScheme.onPrimary 
+                                                else MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Text(
+                            text = "Fuente de datos: ${selected.source}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f)
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Selected rate detail
+            } else if (uiState.isLoading) {
                 Text(
-                    text = "Source: ${selected.source}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.outline
+                    text = "Cargando datos...",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
                 )
             }
-        } else if (uiState.isLoading) {
-            Text(
-                text = "Loading...",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.outline
-            )
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
         // Error message
         uiState.error?.let { error ->
-            Text(
-                text = error,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error,
-                textAlign = TextAlign.Center,
+            Surface(
+                color = MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.fillMaxWidth()
-            )
+            ) {
+                Text(
+                    text = "ERROR: $error",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        // Disclaimer
         Text(
             text = stringResource(R.string.disclaimer),
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.outline,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp)
+                .padding(top = 16.dp),
+            lineHeight = 16.sp
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrencySection(
     label: String,
@@ -346,8 +469,8 @@ fun CurrencySection(
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             modifier = Modifier.padding(bottom = 8.dp)
         )
         Row(
@@ -359,21 +482,30 @@ fun CurrencySection(
                 value = amount,
                 onValueChange = onAmountChange,
                 modifier = Modifier.weight(1f),
-                textStyle = MaterialTheme.typography.titleLarge,
+                textStyle = MaterialTheme.typography.headlineSmall.copy(color = Color.White),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 readOnly = readOnly,
                 singleLine = true,
-                shape = MaterialTheme.shapes.medium
+                shape = RoundedCornerShape(16.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                    unfocusedBorderColor = Color.White.copy(alpha = 0.1f),
+                    unfocusedContainerColor = Color.White.copy(alpha = 0.03f),
+                    focusedContainerColor = Color.White.copy(alpha = 0.07f)
+                )
             )
 
             Button(
                 onClick = onCurrencyClick,
-                modifier = Modifier.height(56.dp),
-                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier
+                    .height(56.dp)
+                    .width(100.dp),
+                shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                )
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
             ) {
                 Text(
                     text = currency,
@@ -394,12 +526,16 @@ fun GreetingPreview() {
         Scaffold(
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
-            MainPage(
-                viewModel = mainViewModel,
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize()
-            )
+            Box(modifier = Modifier.fillMaxSize()) {
+                TechBackground()
+                MainPage(
+                    viewModel = mainViewModel,
+                    onShare = {},
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize()
+                )
+            }
         }
     }
 }
