@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">CurrX</string>
+
+    <!-- Header -->
+    <string name="subtitle">Premium currency converter</string>
+
+    <!-- Currency search sheet -->
+    <string name="search_placeholder">Search currency...</string>
+
+    <!-- Converter card -->
+    <string name="label_from">From</string>
+    <string name="label_to">To</string>
+    <string name="content_description_swap">Swap currencies</string>
+
+    <!-- Exchange rate -->
+    <string name="exchange_rate_title">Exchange rate</string>
+    <string name="rate_display">1 %1$s = %2$s %3$s</string>
+    <string name="rate_type_interbank">Interbank</string>
+    <string name="data_source">Data source: %1$s</string>
+
+    <!-- Share -->
+    <string name="share">Share</string>
+    <string name="share_text">CurrX: 1 %1$s = %2$s %3$s (Source: %4$s)</string>
+
+    <!-- States -->
+    <string name="loading">Loading data...</string>
+    <string name="error">ERROR: %1$s</string>
+
+    <!-- Legal -->
+    <string name="disclaimer">Exchange rates shown are for informational reference only and may differ from actual transaction rates. Sources: Frankfurter API (ECB) and DolarAPI.com (MIT license). This application does not constitute financial advice.</string>
+</resources>

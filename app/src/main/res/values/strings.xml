@@ -1,4 +1,31 @@
 <resources>
     <string name="app_name">CurrX</string>
+
+    <!-- Header -->
+    <string name="subtitle">Conversor de divisas premium</string>
+
+    <!-- Currency search sheet -->
+    <string name="search_placeholder">Buscar moneda...</string>
+
+    <!-- Converter card -->
+    <string name="label_from">Origen</string>
+    <string name="label_to">Destino</string>
+    <string name="content_description_swap">Intercambiar monedas</string>
+
+    <!-- Exchange rate -->
+    <string name="exchange_rate_title">Tipo de cambio</string>
+    <string name="rate_display">1 %1$s = %2$s %3$s</string>
+    <string name="rate_type_interbank">Interbancario</string>
+    <string name="data_source">Fuente de datos: %1$s</string>
+
+    <!-- Share -->
+    <string name="share">Compartir</string>
+    <string name="share_text">CurrX: 1 %1$s = %2$s %3$s (Fuente: %4$s)</string>
+
+    <!-- States -->
+    <string name="loading">Cargando datos...</string>
+    <string name="error">ERROR: %1$s</string>
+
+    <!-- Legal -->
     <string name="disclaimer">Las tasas de cambio mostradas son de referencia informativa y pueden diferir de las tasas reales de transacción. Fuentes: Frankfurter API (BCE) y DolarAPI.com (licencia MIT). Esta aplicación no constituye asesoría financiera.</string>
 </resources>

@@ -191,7 +191,7 @@ fun MainPage(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp, vertical = 8.dp),
-                    placeholder = { Text("Search currency...", color = MaterialTheme.colorScheme.outline) },
+                    placeholder = { Text(stringResource(R.string.search_placeholder), color = MaterialTheme.colorScheme.outline) },
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -252,7 +252,7 @@ fun MainPage(
         Spacer(modifier = Modifier.height(32.dp))
 
         Text(
-            text = "CurrX",
+            text = stringResource(R.string.app_name),
             style = MaterialTheme.typography.displayMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -260,7 +260,7 @@ fun MainPage(
         )
 
         Text(
-            text = "Conversor de divisas premium",
+            text = stringResource(R.string.subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.alpha(0.8f)
@@ -293,7 +293,7 @@ fun MainPage(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 CurrencySection(
-                    label = "Origen",
+                    label = stringResource(R.string.label_from),
                     amount = uiState.amount,
                     currency = uiState.fromCurrency,
                     onAmountChange = { viewModel.updateAmount(it) },
@@ -314,13 +314,13 @@ fun MainPage(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
-                        contentDescription = "Swap Currencies",
+                        contentDescription = stringResource(R.string.content_description_swap),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
 
                 CurrencySection(
-                    label = "Destino",
+                    label = stringResource(R.string.label_to),
                     amount = uiState.convertedAmount,
                     currency = uiState.toCurrency,
                     onAmountChange = {},
@@ -346,28 +346,39 @@ fun MainPage(
                 val selected = uiState.rateOptions[uiState.selectedRateIndex.coerceIn(0, uiState.rateOptions.lastIndex)]
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "Tipo de cambio",
+                        text = stringResource(R.string.exchange_rate_title),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                     )
-                    
+
+                    val formattedRate = String.format("%.4f", 1 / selected.rate)
+                    val shareText = stringResource(
+                        R.string.share_text,
+                        uiState.fromCurrency,
+                        formattedRate,
+                        uiState.toCurrency,
+                        selected.source
+                    )
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = "1 ${uiState.fromCurrency} = ${String.format("%.4f", 1 / selected.rate)} ${uiState.toCurrency}",
+                            text = stringResource(
+                                R.string.rate_display,
+                                uiState.fromCurrency,
+                                formattedRate,
+                                uiState.toCurrency
+                            ),
                             style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.onBackground
                         )
                         
-                        IconButton(onClick = {
-                            val text = "CurrX Rate: 1 ${uiState.fromCurrency} = ${String.format("%.4f", 1 / selected.rate)} ${uiState.toCurrency} (Fuente: ${selected.source})"
-                            onShare(text)
-                        }) {
+                        IconButton(onClick = { onShare(shareText) }) {
                             Icon(
                                 Icons.Default.Share,
-                                contentDescription = "Share",
+                                contentDescription = stringResource(R.string.share),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(18.dp)
                             )
@@ -396,8 +407,12 @@ fun MainPage(
                                         .clickable { viewModel.selectRateOption(index) }
                                         .padding(horizontal = 16.dp, vertical = 8.dp)
                                 ) {
+                                    val rateTypeLabel = when (option.type) {
+                                        "interbank" -> stringResource(R.string.rate_type_interbank)
+                                        else -> option.type.replaceFirstChar { it.uppercase() }
+                                    }
                                     Text(
-                                        text = option.type.replaceFirstChar { it.uppercase() },
+                                        text = rateTypeLabel,
                                         style = MaterialTheme.typography.labelMedium,
                                         color = if (isSelected) MaterialTheme.colorScheme.onPrimary 
                                                 else MaterialTheme.colorScheme.onSurface
@@ -409,7 +424,7 @@ fun MainPage(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         Text(
-                            text = "Fuente de datos: ${selected.source}",
+                            text = stringResource(R.string.data_source, selected.source),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f)
                         )
@@ -417,7 +432,7 @@ fun MainPage(
                 }
             } else if (uiState.isLoading) {
                 Text(
-                    text = "Cargando datos...",
+                    text = stringResource(R.string.loading),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
                 )
@@ -434,7 +449,7 @@ fun MainPage(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "ERROR: $error",
+                    text = stringResource(R.string.error, error),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.error,
                     textAlign = TextAlign.Center,
