@@ -24,11 +24,22 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // Disables debugging tools on production builds
+            isDebuggable = false
+
+            // Enables code shrinking, obfuscation, and optimization
+            isMinifyEnabled = true
+            isShrinkResources = true
+
+            // Standard ProGuard optimization rules
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+
+        debug {
+            isDebuggable = true
         }
     }
     compileOptions {
