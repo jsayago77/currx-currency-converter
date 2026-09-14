@@ -8,16 +8,13 @@
 CurrX is a dual-API currency converter for Android built with **Jetpack Compose**. It provides real exchange rates for LATAM countries via [DolarAPI.com](https://dolarapi.com) and interbank rates via [Frankfurter API](https://www.frankfurter.dev), giving you both market and official rates side by side.
 
 
-=====================================================================
-SCREENSHOTS
-=====================================================================
-|                     Home & conversion                     |                                 Currency picker                                 |
-|:---------------------------------------------------------:|:-------------------------------------------------------------------------------:|
-| <img src="screenshots/home.jpeg" alt="Home" width="200"/> | <img src="screenshots/currency_picker.jpeg" alt="Currency picker" width="200"/> |
 
-|                         Splash screen                         |                           Dark mode                            |
-|:-------------------------------------------------------------:|:--------------------------------------------------------------:|
-| <img src="screenshots/splash.jpeg" alt="Splash" width="200"/> | <img src="screenshots/dark.jpeg" alt="Dark mode" width="200"/> |
+## Screenshots
+
+|                     Home & conversion                     |                                 Currency picker                                 |                         Splash screen                         |                           Dark mode                            |
+|:---------------------------------------------------------:|:-------------------------------------------------------------------------------:|:-------------------------------------------------------------:|:--------------------------------------------------------------:|
+| <img src="screenshots/home.jpeg" alt="Home" width="150"/> | <img src="screenshots/currency_picker.jpeg" alt="Currency picker" width="150"/> | <img src="screenshots/splash.jpeg" alt="Splash" width="150"/> | <img src="screenshots/dark.jpeg" alt="Dark mode" width="150"/> |
+
 
 
 ## Features
