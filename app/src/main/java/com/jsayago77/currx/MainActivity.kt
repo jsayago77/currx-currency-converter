@@ -93,6 +93,7 @@ import com.jsayago77.currx.ui.theme.CurrXTheme
 class MainActivity : ComponentActivity() {
     @SuppressLint("ViewModelConstructorInComposable")
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val mainViewModel = MainViewModel(ExchangeRateRepository(NetworkModule.api))
@@ -249,7 +250,7 @@ fun MainPage(
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         Text(
             text = stringResource(R.string.app_name),
@@ -266,7 +267,7 @@ fun MainPage(
             modifier = Modifier.alpha(0.8f)
         )
 
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(30.dp))
 
         // Glassmorphism Premium Card
         val glassColor = if (isSystemInDarkTheme()) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.03f)
@@ -333,7 +334,7 @@ fun MainPage(
             }
         }
 
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(30.dp))
 
         // Exchange rate summary
         AnimatedContent(
@@ -439,7 +440,7 @@ fun MainPage(
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(22.dp))
 
         // Error message
         uiState.error?.let { error ->
